@@ -1,0 +1,9 @@
+{
+  "name": "integrity-travel-consulting-site",
+  "private": true,
+  "version": "1.2.0",
+  "description": "Integrity Travel & Consulting bilingual static site with Netlify email function",
+  "dependencies": {
+    "nodemailer": "^9.0.5"
+  }
+}
