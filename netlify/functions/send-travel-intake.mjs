@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { intakeAttachmentBase64, intakeFilename } from './intakeAttachment.mjs';
+import { intakeAttachmentBase64Fr, intakeFilenameFr } from './intakeAttachmentFr.mjs';
 
 const TEMP_EMAIL = 'killiantubuo.nkwain.kiawitech@gmail.com';
 const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -22,18 +23,22 @@ const escapeHtml = value => String(value || '')
   .replaceAll("'", '&#039;');
 
 
-const getIntakeAttachment = async siteUrl => {
-  // Prefer the currently deployed DOCX. This means the business can replace the file
-  // in /downloads without regenerating backend code. Keep the embedded copy as a fallback.
+const getIntakeAttachment = async (siteUrl, language) => {
+  const isFrench = language === 'fr';
+  const filename = isFrench ? intakeFilenameFr : intakeFilename;
+  const fallbackBase64 = isFrench ? intakeAttachmentBase64Fr : intakeAttachmentBase64;
+
+  // Prefer the currently deployed language-specific DOCX. This means the business can
+  // replace either file in /downloads without regenerating backend code.
   if (siteUrl) {
     try {
-      const response = await fetch(`${siteUrl}/downloads/${encodeURIComponent(intakeFilename)}`);
-      if (response.ok) return Buffer.from(await response.arrayBuffer());
+      const response = await fetch(`${siteUrl}/downloads/${encodeURIComponent(filename)}`);
+      if (response.ok) return { buffer: Buffer.from(await response.arrayBuffer()), filename };
     } catch (error) {
       console.warn('Could not fetch deployed intake form; using embedded fallback.', error?.message || error);
     }
   }
-  return Buffer.from(intakeAttachmentBase64, 'base64');
+  return { buffer: Buffer.from(fallbackBase64, 'base64'), filename };
 };
 
 const buildTransport = () => {
@@ -132,7 +137,7 @@ export async function handler(event) {
     : 'Your Travel Intake Evaluation Form — Integrity Travel & Consulting';
 
   try {
-    const attachmentBuffer = await getIntakeAttachment(siteUrl);
+    const { buffer: attachmentBuffer, filename: attachmentFilename } = await getIntakeAttachment(siteUrl, language);
 
     // Send the requested form first. Internal lead alerts should never make a successful
     // client delivery look like a failure if the alert itself encounters a transient issue.
@@ -143,7 +148,7 @@ export async function handler(event) {
       subject: clientSubject,
       html: language === 'fr' ? frHtml : enHtml,
       attachments: [{
-        filename: intakeFilename,
+        filename: attachmentFilename,
         content: attachmentBuffer,
         contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
       }]
