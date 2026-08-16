@@ -6,11 +6,11 @@
 */
 window.INTEGRITY_CONFIG = {
   prelaunchMode: true,
-  testimonialsVerified: false,
+  testimonialsVerified: true,
   founderVerified: false,
-  email: "killiantubuo.nkwain.kiawitech@gmail.com",
-  phone: "+237 683 190 412",
-  whatsapp: "+237 683 190 412",
+  email: "info@integritytravl.com",
+  phone: "+1 825 925 5069",
+  whatsapp: "+1 825 925 5069",
   bookingUrl: "",
   consultationPrice: "XAF 150,000",
   consultationPriceFr: "150 000 XAF",
