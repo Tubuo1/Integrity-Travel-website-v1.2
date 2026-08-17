@@ -175,9 +175,11 @@
       const status = $('.intake-status', form);
       const submit = $('button[type="submit"]', form);
       const data = Object.fromEntries(new FormData(form).entries());
-      const dl = isFrench
-        ? '../downloads/Integrity-Travel-Consulting-Intake-Evaluation-Form.docx'
-        : 'downloads/Integrity-Travel-Consulting-Intake-Evaluation-Form.docx';
+      const wantsFrench = String(data.language || (isFrench ? 'French' : 'English')).toLowerCase().startsWith('fr');
+      const intakeFile = wantsFrench
+        ? 'Integrity-Travel-Consulting-Formulaire-Evaluation-Initiale-FR.docx'
+        : 'Integrity-Travel-Consulting-Intake-Evaluation-Form.docx';
+      const dl = `${isFrench ? '../' : ''}downloads/${intakeFile}`;
 
       if (status) {
         status.className = 'intake-status show loading';
